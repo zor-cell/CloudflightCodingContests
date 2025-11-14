@@ -6,6 +6,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Main {
+    private static int timeLimit = 0;
 
     /**
      * Do not change this method. Method Loads the Config and initializes the IOManager.
@@ -48,7 +49,7 @@ public class Main {
 
             int sx = Integer.parseInt(split2[0]);
             int sy = Integer.parseInt(split2[1]);
-            int timeLimit = Integer.parseInt(split1[1]);
+            timeLimit = Integer.parseInt(split1[1]);
 
             line = reader.nextLine();
             var split3 = line.split(",");
@@ -64,7 +65,12 @@ public class Main {
             String x;
             String y;
             if(min == Math.abs(diffy)) {
-                target = ay < 0 ? ay - 3 : ay + 3;
+                double cross = sideOfLine(0, 0, sx, sy, ax, ay);
+                if(cross > 0) {
+                    target = ay < 0 ? ay + 3 : ay - 3;
+                } else {
+                    target = ay < 0 ? ay - 3 : ay + 3;
+                }
 
                 var goY1 = go(target);
                 var waitX1 = wait(goY1);
@@ -78,7 +84,12 @@ public class Main {
                 x = constructPath(waitX1, goX, waitX2);
                 y = constructPath(goY1, waitY, goY2);
             } else {
-                target = ax < 0 ? ax - 3 : ax + 3;
+                double cross = sideOfLine(0, 0, sx, sy, ax, ay);
+                if(cross > 0) {
+                    target = ax < 0 ? ax + 3 : ax - 3;
+                } else {
+                    target = ax < 0 ? ax - 3 : ax + 3;
+                }
 
                 var goX1 = go(target);
                 var waitY1 = wait(goX1);
@@ -106,6 +117,11 @@ public class Main {
         path.addAll(b);
         path.addAll(c);
         path.add(0);
+
+        int sum = path.stream().reduce(0, Integer::sum);
+        if(sum > timeLimit) {
+            throw new RuntimeException("invalid");
+        }
 
         String s = path.stream()
                 .map(String::valueOf)
@@ -156,5 +172,12 @@ public class Main {
         }
 
         return list;
+    }
+
+    public static double sideOfLine(double ax, double ay,
+                                    double bx, double by,
+                                    double px, double py) {
+
+        return (bx - ax) * (py - ay) - (by - ay) * (px - ax);
     }
 }
