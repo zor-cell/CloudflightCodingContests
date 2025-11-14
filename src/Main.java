@@ -58,12 +58,12 @@ public class Main {
             int diffx = ax;
             int diffy = ay;
 
-            int min = Math.min(diffx, diffy);
+            int min = Math.min(Math.abs(diffx), Math.abs(diffy));
             int target;
 
             String x;
             String y;
-            if(min == diffy) {
+            if(min == Math.abs(diffy)) {
                 target = ay < 0 ? ay - 3 : ay + 3;
 
                 var goY1 = go(target);
