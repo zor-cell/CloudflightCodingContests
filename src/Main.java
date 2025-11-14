@@ -2,8 +2,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -46,48 +46,90 @@ public class Main {
             var split1 = line.split(" ");
             var split2 = split1[0].split(",");
 
-            int x = Integer.parseInt(split2[0]);
-            int y = Integer.parseInt(split2[1]);
+            int sx = Integer.parseInt(split2[0]);
+            int sy = Integer.parseInt(split2[1]);
             int timeLimit = Integer.parseInt(split1[1]);
 
             line = reader.nextLine();
-            var split3 = split1[0].split(",");
+            var split3 = line.split(",");
             int ax = Integer.parseInt(split3[0]);
             int ay = Integer.parseInt(split3[1]);
 
-            int diffx = ax - x;
-            int diffy = ay - y;
+            int diffx = ax;
+            int diffy = ay;
 
             int min = Math.min(diffx, diffy);
             int target;
-            if(min == diffx) {
-                target = ay + 3;
+
+            String x;
+            String y;
+            if(min == diffy) {
+                target = ay < 0 ? ay - 3 : ay + 3;
+
+                var goY1 = go(target);
+                var waitX1 = wait(goY1);
+
+                var goX = go(sx);
+                var waitY = wait(goX);
+
+                var goY2 = go(sy - target);
+                var waitX2 = wait(goY2);
+
+                x = constructPath(waitX1, goX, waitX2);
+                y = constructPath(goY1, waitY, goY2);
             } else {
-                target = ax + 3;
+                target = ax < 0 ? ax - 3 : ax + 3;
+
+                var goX1 = go(target);
+                var waitY1 = wait(goX1);
+
+                var goY = go(sx);
+                var waitX = wait(goY);
+
+                var goX2 = go(sx - target);
+                var waitY2 = wait(goX2);
+
+
+                x = constructPath(goX1, waitX, goX2);
+                y = constructPath(waitY1, goY, waitY2);
             }
 
-            var listX = compute(x, ax);
-            var listY = compute(y, ay);
 
-            writer.write("0 ");
-            for(int j = 0;j < listX.size();j++) {
-                int v = listX.get(j);
-                writer.write(v + " ");
-            }
-            writer.write("0\n");
-
-            writer.write("0 ");
-            for(int j = 0;j < listY.size();j++) {
-                int v =  listY.get(j);
-                writer.write(v + " ");
-            }
-            writer.write("0\n");
-
-            writer.write("\n");
+            writer.write(x + "\n");
+            writer.write(y + "\n\n");
         }
     }
 
-    private static List<Integer> compute(int x, int ax) throws IOException {
+    private static String constructPath(List<Integer> a, List<Integer> b, List<Integer> c) {
+        var path = new ArrayList<Integer>();
+        path.add(0);
+        path.addAll(a);
+        path.addAll(b);
+        path.addAll(c);
+        path.add(0);
+
+        String s = path.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "));
+        return s;
+    }
+
+    private static List<Integer> wait(List<Integer> path) {
+        if(path.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        int sum = path.stream().reduce((a, b) -> Math.abs(a) + Math.abs(b)).get();
+
+        var empty = new ArrayList<Integer>();
+        for(int k = 0;k < sum;k++) {
+            empty.add(0);
+        }
+
+        return empty;
+    }
+
+    private static List<Integer> go(int x) throws IOException {
         List<Integer> list = new ArrayList<>();
 
         int sign = x < 0 ? -1 : 1;
@@ -95,19 +137,8 @@ public class Main {
         for(int j = 0;j < Math.abs(x) / 2;j++) {
             list.add(val);
             if(sign == 1) {
-                //brake
-                int diff = 5 - val + 1;
-                if(x + 2 + diff >= ax) {
-                    if(val == 5) {
-                        val = 0;
-                    } else {
-                        val++;
-                    }
-                } else {
-                    //accelerate
-                    if(val > 1) {
-                        val--;
-                    }
+                if(val > 1) {
+                    val--;
                 }
             } else {
                 if (val < -1) {
