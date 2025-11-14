@@ -62,6 +62,8 @@ public class Main {
             int min = Math.min(Math.abs(diffx), Math.abs(diffy));
             int target;
 
+            List<Integer> pathX;
+            List<Integer> pathY;
             String x;
             String y;
             if(min == Math.abs(diffy)) {
@@ -81,8 +83,10 @@ public class Main {
                 var goY2 = go(sy - target);
                 var waitX2 = wait(goY2);
 
-                x = constructPath(waitX1, goX, waitX2);
-                y = constructPath(goY1, waitY, goY2);
+                pathX = constructPath(waitX1, goX, waitX2);
+                pathY = constructPath(goY1, waitY, goY2);
+                x = constructString(pathX);
+                y = constructString(pathY);
             } else {
                 double cross = sideOfLine(0, 0, sx, sy, ax, ay);
                 if(cross > 0) {
@@ -100,17 +104,151 @@ public class Main {
                 var goX2 = go(sx - target);
                 var waitY2 = wait(goX2);
 
-                x = constructPath(goX1, waitX, goX2);
-                y = constructPath(waitY1, goY, waitY2);
+                pathX = constructPath(goX1, waitX, goX2);
+                pathY = constructPath(waitY1, goY, waitY2);
+                x = constructString(pathX);
+                y = constructString(pathY);
             }
 
+            int timeStep = 0;
+
+            int cum = 0;
+            List<Integer> pathXPadded = new ArrayList<>();
+            for(var xEntry : pathX) {
+                pathXPadded.add(xEntry);
+                for(int j = 1;j < xEntry;j++) {
+                    pathXPadded.add(-100);
+                }
+            }
+            List<Integer> pathYPadded = new ArrayList<>();
+            for(var yEntry : pathY) {
+                pathYPadded.add(yEntry);
+                for(int j = 1;j < yEntry;j++) {
+                    pathYPadded.add(-100);
+                }
+            }
+
+            int xPos = 0;
+            int yPos = 0;
+            int goneIndex = -1;
+            for(int j = 0;j < Math.min(pathXPadded.size(), pathYPadded.size());j++) {
+                int xEntry =  pathXPadded.get(j);
+                int yEntry =  pathYPadded.get(j);
+
+                if (xEntry >  0) {
+                    xPos++;
+                }
+                if(yEntry > 0) {
+                    yPos++;
+                }
+
+                //x check
+                if(sx < 0) {
+                    if(xPos < ax - 3) {
+                        //gone
+                        goneIndex = j;
+                        break;
+                    }
+                } else {
+                    if(xPos > ax + 3) {
+                        //gone
+                        goneIndex = j;
+                        break;
+                    }
+                }
+
+                //y check
+                if(sy < 0) {
+                    if(yPos < ay - 3) {
+                        //gone
+                        goneIndex = j;
+                        break;
+                    }
+                } else {
+                    if(yPos > ay + 3) {
+                        //gone
+                        goneIndex = j;
+                        break;
+                    }
+                }
+            }
+
+            //scrap 0 after gone
+            if(goneIndex >= 0) {
+                for (int j = goneIndex; j < pathXPadded.size(); j++) {
+                    if (pathXPadded.get(j) == 0) {
+                        pathXPadded.remove(j);
+                        j--;
+                    }
+                }
+
+                for (int j = goneIndex; j < pathYPadded.size(); j++) {
+                    if (pathYPadded.get(j) == 0) {
+                        pathYPadded.remove(j);
+                        j--;
+                    }
+                }
+
+                int modIndex = 0;
+                for (int j = 0; j < pathXPadded.size(); j++) {
+                    if (pathXPadded.get(j) == 0) {
+                        modIndex += 1;
+                    }
+                    if (modIndex >= 5) {
+                        for (int k = -5; k < 0 ; k++) {
+                            pathXPadded.remove(j + k);
+                        }
+                        for (int k = 1; k < 5; k++) {
+                            boolean found = false;
+                            for (int l = 0; l < pathXPadded.size(); l++) {
+                                if  (Math.abs(pathXPadded.get(l)) == k) {
+                                    pathXPadded.remove(l);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if(found) {
+                                pathXPadded.add(j);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                //align 0
+                int timediff = pathXPadded.size() - pathYPadded.size();
+                if (timediff > 0) {
+                    for (int j = 0; j < timediff; j++) {
+                        pathYPadded.add(0);
+                    }
+                } else {
+                    for (int j = 0; j < Math.abs(timediff); j++) {
+                        pathXPadded.add(0);
+                    }
+                }
+
+                List<Integer> finalX = new ArrayList<>(pathXPadded.stream().filter(aaa -> aaa != -100).toList());
+                List<Integer> finalY = new ArrayList<>(pathYPadded.stream().filter(aaa -> aaa != -100).toList());
+
+                finalX.add(0);
+                finalY.add(0);
+                x = constructString(finalX);
+                y = constructString(finalY);
+            }
 
             writer.write(x + "\n");
             writer.write(y + "\n\n");
         }
     }
 
-    private static String constructPath(List<Integer> a, List<Integer> b, List<Integer> c) {
+    private static String constructString(List<Integer> path) {
+        String s = path.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "));
+        return s;
+    }
+
+    private static List<Integer> constructPath(List<Integer> a, List<Integer> b, List<Integer> c) {
         var path = new ArrayList<Integer>();
         path.add(0);
         path.addAll(a);
@@ -118,15 +256,12 @@ public class Main {
         path.addAll(c);
         path.add(0);
 
-        int sum = path.stream().reduce(0, Integer::sum);
+        int sum = path.stream().reduce((aa, bb) -> Math.abs(aa) + Math.abs(bb)).get();
         if(sum > timeLimit) {
             throw new RuntimeException("invalid");
         }
 
-        String s = path.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(" "));
-        return s;
+        return path;
     }
 
     private static List<Integer> wait(List<Integer> path) {
@@ -145,6 +280,36 @@ public class Main {
     }
 
     private static List<Integer> go(int x) throws IOException {
+        List<Integer> list = new ArrayList<>();
+
+        int sign = x < 0 ? -1 : 1;
+        int val = 5 * sign;
+        for(int j = 0;j < Math.abs(x) / 2;j++) {
+            list.add(val);
+            if(sign == 1) {
+                if(val > 1) {
+                    val--;
+                }
+            } else {
+                if (val < -1) {
+                    val++;
+                }
+            }
+        }
+
+        // append reversed list
+        for (int j = list.size() - 1; j >= 0; j--) {
+            list.add(list.get(j));
+        }
+
+        if(Math.abs(x) % 2 == 1) {
+            list.add(Math.abs(x) / 2, val);
+        }
+
+        return list;
+    }
+
+    private static List<Integer> goFrom(int x, int sx) throws IOException {
         List<Integer> list = new ArrayList<>();
 
         int sign = x < 0 ? -1 : 1;
