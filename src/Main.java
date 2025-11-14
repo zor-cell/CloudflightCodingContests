@@ -83,12 +83,11 @@ public class Main {
                 var goX1 = go(target);
                 var waitY1 = wait(goX1);
 
-                var goY = go(sx);
+                var goY = go(sy);
                 var waitX = wait(goY);
 
                 var goX2 = go(sx - target);
                 var waitY2 = wait(goX2);
-
 
                 x = constructPath(goX1, waitX, goX2);
                 y = constructPath(waitY1, goY, waitY2);
