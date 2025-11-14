@@ -1,5 +1,8 @@
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
@@ -39,12 +42,21 @@ public class Main {
         reader.nextLine(); //skip linebreak
 
         int result = 0;
-        for(int i = 0;i < n;i++) {
+        for (int i = 0; i < n; i++) {
             String line = reader.nextLine();
-            result = line.length();
+            Scanner lineScanner = new Scanner(line);
 
-            //write result to file
-            writer.write(result + "\n");
+            List<Integer> list = new ArrayList<>();
+            while (lineScanner.hasNextInt()) {
+                list.add(lineScanner.nextInt());
+            }
+
+            lineScanner.close();
+
+            int res = list.stream().reduce(Integer::sum).orElse(0);
+
+            writer.write(res + "\n");
         }
+
     }
 }
