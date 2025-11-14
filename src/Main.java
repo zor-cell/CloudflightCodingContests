@@ -42,42 +42,62 @@ public class Main {
         reader.nextLine(); //skip linebreak
 
         for (int i = 0; i < n; i++) {
-            int station = reader.nextInt();
-            int timeLimit = reader.nextInt();
-            reader.nextLine();
+            String line = reader.nextLine();
+            var split1 = line.split(" ");
+            var split2 = split1[0].split(",");
 
-            List<Integer> list = new ArrayList<>();
+            int x = Integer.parseInt(split2[0]);
+            int y = Integer.parseInt(split2[1]);
+            int timeLimit = Integer.parseInt(split1[1]);
 
-            int sign = station < 0 ? -1 : 1;
-            int val = 5 * sign;
-            for(int j = 0;j < Math.abs(station) / 2;j++) {
-                list.add(val);
-                if(sign == 1) {
-                    if(val > 1) {
-                        val--;
-                    }
-                } else {
-                    if (val < -1) {
-                        val++;
-                    }
-                }
-            }
-
-            // append reversed list
-            for (int j = list.size() - 1; j >= 0; j--) {
-                list.add(list.get(j));
-            }
-
-            if(Math.abs(station) % 2 == 1) {
-                list.add(Math.abs(station) / 2, val);
-            }
+            var listX = compute(x);
+            var listY = compute(y);
 
             writer.write("0 ");
-            for(int j = 0;j < list.size();j++) {
-                int v =  list.get(j);
+            for(int j = 0;j < listX.size();j++) {
+                int v =  listX.get(j);
                 writer.write(v + " ");
             }
             writer.write("0\n");
+
+            writer.write("0 ");
+            for(int j = 0;j < listY.size();j++) {
+                int v =  listY.get(j);
+                writer.write(v + " ");
+            }
+            writer.write("0\n");
+
+            writer.write("\n");
         }
+    }
+
+    private static List<Integer> compute(int x) throws IOException {
+        List<Integer> list = new ArrayList<>();
+
+        int sign = x < 0 ? -1 : 1;
+        int val = 5 * sign;
+        for(int j = 0;j < Math.abs(x) / 2;j++) {
+            list.add(val);
+            if(sign == 1) {
+                if(val > 1) {
+                    val--;
+                }
+            } else {
+                if (val < -1) {
+                    val++;
+                }
+            }
+        }
+
+        // append reversed list
+        for (int j = list.size() - 1; j >= 0; j--) {
+            list.add(list.get(j));
+        }
+
+        if(Math.abs(x) % 2 == 1) {
+            list.add(Math.abs(x) / 2, val);
+        }
+
+        return list;
     }
 }
