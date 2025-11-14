@@ -50,12 +50,27 @@ public class Main {
             while (lineScanner.hasNextInt()) {
                 list.add(lineScanner.nextInt());
             }
-
             lineScanner.close();
 
-            int res = list.stream().reduce(Integer::sum).orElse(0);
+            int space = 0;
+            int time = 0;
+            for(int j = 0;j < list.size();j++) {
+                int pace = list.get(j);
 
-            writer.write(res + "\n");
+                if(pace == 0) {
+                    space += 0;
+                } else {
+                    space += pace < 0 ? -1 : 1;
+                }
+
+                int localTime = Math.abs(pace);
+                if(localTime == 0) {
+                    localTime = 1;
+                }
+                time += localTime;
+            }
+            writer.write(space + " " + time + "\n");
+
         }
 
     }
