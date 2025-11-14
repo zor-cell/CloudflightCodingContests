@@ -50,12 +50,28 @@ public class Main {
             int y = Integer.parseInt(split2[1]);
             int timeLimit = Integer.parseInt(split1[1]);
 
-            var listX = compute(x);
-            var listY = compute(y);
+            line = reader.nextLine();
+            var split3 = split1[0].split(",");
+            int ax = Integer.parseInt(split3[0]);
+            int ay = Integer.parseInt(split3[1]);
+
+            int diffx = ax - x;
+            int diffy = ay - y;
+
+            int min = Math.min(diffx, diffy);
+            int target;
+            if(min == diffx) {
+                target = ay + 3;
+            } else {
+                target = ax + 3;
+            }
+
+            var listX = compute(x, ax);
+            var listY = compute(y, ay);
 
             writer.write("0 ");
             for(int j = 0;j < listX.size();j++) {
-                int v =  listX.get(j);
+                int v = listX.get(j);
                 writer.write(v + " ");
             }
             writer.write("0\n");
@@ -71,7 +87,7 @@ public class Main {
         }
     }
 
-    private static List<Integer> compute(int x) throws IOException {
+    private static List<Integer> compute(int x, int ax) throws IOException {
         List<Integer> list = new ArrayList<>();
 
         int sign = x < 0 ? -1 : 1;
@@ -79,8 +95,19 @@ public class Main {
         for(int j = 0;j < Math.abs(x) / 2;j++) {
             list.add(val);
             if(sign == 1) {
-                if(val > 1) {
-                    val--;
+                //brake
+                int diff = 5 - val + 1;
+                if(x + 2 + diff >= ax) {
+                    if(val == 5) {
+                        val = 0;
+                    } else {
+                        val++;
+                    }
+                } else {
+                    //accelerate
+                    if(val > 1) {
+                        val--;
+                    }
                 }
             } else {
                 if (val < -1) {
