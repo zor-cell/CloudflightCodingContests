@@ -41,37 +41,13 @@ public class Main {
         int n = reader.nextInt();
         reader.nextLine(); //skip linebreak
 
-        int result = 0;
         for (int i = 0; i < n; i++) {
-            String line = reader.nextLine();
-            Scanner lineScanner = new Scanner(line);
+            int station = reader.nextInt();
+            int timeLimit = reader.nextInt();
+            reader.nextLine();
 
-            List<Integer> list = new ArrayList<>();
-            while (lineScanner.hasNextInt()) {
-                list.add(lineScanner.nextInt());
-            }
-            lineScanner.close();
 
-            int space = 0;
-            int time = 0;
-            for(int j = 0;j < list.size();j++) {
-                int pace = list.get(j);
-
-                if(pace == 0) {
-                    space += 0;
-                } else {
-                    space += pace < 0 ? -1 : 1;
-                }
-
-                int localTime = Math.abs(pace);
-                if(localTime == 0) {
-                    localTime = 1;
-                }
-                time += localTime;
-            }
-            writer.write(space + " " + time + "\n");
-
+            writer.write("\n");
         }
-
     }
 }
