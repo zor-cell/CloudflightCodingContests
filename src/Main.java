@@ -46,8 +46,38 @@ public class Main {
             int timeLimit = reader.nextInt();
             reader.nextLine();
 
+            List<Integer> list = new ArrayList<>();
 
-            writer.write("\n");
+            int sign = station < 0 ? -1 : 1;
+            int val = 5 * sign;
+            for(int j = 0;j < Math.abs(station) / 2;j++) {
+                list.add(val);
+                if(sign == 1) {
+                    if(val > 1) {
+                        val--;
+                    }
+                } else {
+                    if (val < -1) {
+                        val++;
+                    }
+                }
+            }
+
+            // append reversed list
+            for (int j = list.size() - 1; j >= 0; j--) {
+                list.add(list.get(j));
+            }
+
+            if(Math.abs(station) % 2 == 1) {
+                list.add(Math.abs(station) / 2, val);
+            }
+
+            writer.write("0 ");
+            for(int j = 0;j < list.size();j++) {
+                int v =  list.get(j);
+                writer.write(v + " ");
+            }
+            writer.write("0\n");
         }
     }
 }
